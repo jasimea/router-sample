@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="author" content="Jasim" />
+    <meta
+      name="viewport"
+      content="width=device-width,minimum-scale=1,initial-scale=1"
+    />
+    <meta name="theme-color" content="#FF00FF" />
+    <title>Router</title>
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
+  <body>
+    <wc-router>
+      <nav>
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/about/">About</a></li>
+          <li><a href="/contact/">Contact</a></li>
+          <li><a href="/misc/">Misc</a></li>
+        </ul>
+      </nav>
+      <wc-route path="/" title="Home" component="wc-home"></wc-route>
+      <wc-route path="/about" title="About Us" component="wc-about"></wc-route>
+      <wc-route
+        path="/contact"
+        title="Contact Us"
+        component="wc-contact"
+      ></wc-route>
+      <!-- <wc-route path="*" title="404" component="wc-notfound"></wc-route> -->
+      <wc-outlet></wc-outlet>
+    </wc-router>
+    <script type="module" src="./js/router.js"></script>
+    <script type="module" src="./js/pages/index.js"></script>
+  </body>
+</html>

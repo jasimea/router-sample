@@ -13,12 +13,13 @@
   </head>
   <body>
     <wc-router>
-      <nav>
+      <nav class="nav">
         <ul>
-          <li><a href="/">Home</a></li>
-          <li><a href="/about/">About</a></li>
-          <li><a href="/contact/">Contact</a></li>
-          <li><a href="/misc/">Misc</a></li>
+          <li><a route="/">Home</a></li>
+          <li><a route="/about/">About</a></li>
+          <li><a route="/contact/">Contact</a></li>
+          <li><a route="/users">Users</a></li>
+          <li><a route="/misc">Misc</a></li>
         </ul>
       </nav>
       <wc-route path="/" title="Home" component="wc-home"></wc-route>
@@ -28,7 +29,13 @@
         title="Contact Us"
         component="wc-contact"
       ></wc-route>
-      <!-- <wc-route path="*" title="404" component="wc-notfound"></wc-route> -->
+      <wc-route path="/users" title="Users" component="wc-users"></wc-route>
+      <wc-route
+        path="/users/:id"
+        title="User Details"
+        component="wc-userdetails"
+      ></wc-route>
+      <wc-route path="*" title="404" component="wc-notfound"></wc-route>
       <wc-outlet></wc-outlet>
     </wc-router>
     <script type="module" src="./js/router.js"></script>

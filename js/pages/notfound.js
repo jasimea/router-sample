@@ -7,7 +7,9 @@ export default class NotFound extends HTMLElement {
 
   render() {
     return html`
-      <h1>Error 404</h1>
+      <div class="page">
+        <h1>Error 404</h1>
+      </div>
     `;
   }
 }

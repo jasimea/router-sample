@@ -7,7 +7,9 @@ export default class AboutUs extends HTMLElement {
 
   render() {
     return html`
-      <h1>About Us</h1>
+      <div class="page">
+        <h1>About Us</h1>
+      </div>
     `;
   }
 }

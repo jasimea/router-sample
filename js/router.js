@@ -1,6 +1,5 @@
 "use strict";
-
-import closest from "./closest.js";
+import { closest, matchPath } from "./util.js";
 
 export default class Router extends HTMLElement {
   constructor() {
@@ -28,14 +27,26 @@ export default class Router extends HTMLElement {
   connectedCallback() {
     this._updateLinks();
     this.navigate(window.location.pathname);
+
+    window.addEventListener("popstate", this._handlePopstate);
   }
 
+  disconnectedCallback() {
+    window.removeEventListener("popstate", this._handlePopstate);
+  }
+
+  _handlePopstate = () => {
+    this.match(window.location.pathname);
+  };
+
   _updateLinks() {
-    this.querySelectorAll("a").forEach(link => {
+    this.querySelectorAll("a[route]").forEach(link => {
       if (closest(link, "wc-router") === this) {
+        const target = link.getAttribute("route");
+        link.setAttribute("href", target);
         link.onclick = e => {
           e.preventDefault();
-          this.navigate(link.href);
+          this.navigate(target);
         };
       }
     });
@@ -43,47 +54,42 @@ export default class Router extends HTMLElement {
 
   navigate(url) {
     window.history.pushState(null, null, url);
-    const matchedRoute = this.match(url);
+    this.match(url);
+  }
+
+  match(url) {
+    const matchedRoute = matchPath(this.routes, url);
     if (matchedRoute !== null) {
       this.activeRoute = matchedRoute;
       this._update();
     }
   }
 
-  match(path) {
-    let route = null;
-    this.routes.forEach((r, i) => {
-      let params = [];
-      let regExPath =
-        r.path.replace(/([:*])(\w+)/g, (full, colon, name) => {
-          params.push(name);
-          return "([^/]+)";
-        }) + "(?:/|$)";
-      let routeMatch = path.match(new RegExp(regExPath));
-      if (routeMatch !== null) {
-        var p = routeMatch
-          .slice(1, routeMatch.length)
-          .reduce((p, value, index) => {
-            if (p === null) p = {};
-            p[params[index]] = value;
-            return p;
-          }, null);
-        route = r;
-        route.params = p;
+  _update() {
+    const { component, title, params = {} } = this.activeRoute;
+    if (component) {
+      while (this.outlet.firstChild) {
+        this.outlet.removeChild(this.outlet.firstChild);
       }
-    });
-    return route;
+
+      const view = document.createElement(component);
+      document.title = title || document.title;
+
+      for (let key in params) {
+        if (key !== "*") view.setAttribute(key, params[key]);
+      }
+
+      this.outlet.appendChild(view);
+      this._updateLinks();
+    }
   }
 
-  _update() {
-    while (this.outlet.firstChild) {
-      this.outlet.removeChild(this.outlet.firstChild);
-    }
-    const view = document.createElement(this.activeRoute.component);
-    this.outlet.appendChild(view);
-    if (this.activeRoute.title) {
-      document.title = this.activeRoute.title;
-    }
+  go(url) {
+    this.navigate(url);
+  }
+
+  back() {
+    window.history.go(-1);
   }
 }
 

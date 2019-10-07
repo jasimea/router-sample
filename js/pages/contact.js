@@ -7,7 +7,9 @@ export default class ContactUs extends HTMLElement {
 
   render() {
     return html`
-      <h1>Contact Us</h1>
+      <div class="page">
+        <h1>Contact Us</h1>
+      </div>
     `;
   }
 }

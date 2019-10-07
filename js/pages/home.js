@@ -7,7 +7,9 @@ export default class Home extends HTMLElement {
 
   render() {
     return html`
-      <h1>Home Page</h1>
+      <div class="page">
+        <h1>Home Page</h1>
+      </div>
     `;
   }
 }

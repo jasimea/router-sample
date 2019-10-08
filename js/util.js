@@ -5,6 +5,7 @@ ep.matches =
   ep.msMatchesSelector ||
   ep.mozMatchesSelector;
 
+// Get closest DOM element with passed selector
 export function closest(elem, selector) {
   while (elem !== document.body) {
     elem = elem.parentElement;
@@ -17,7 +18,17 @@ let paramRe = /^:(.+)/;
 function segmentize(uri) {
   return uri.replace(/(^\/+|\/+$)/g, "").split("/");
 }
-
+/**
+ * The url matching function. Pass the route definitions and url to the match
+ * and the method will return the matched definition or null if there is no
+ * fallback scnario found is the definisions.
+ *
+ * Code is extracted from Reach router path match implementation
+ * https://github.com/reach/router/blob/master/src/lib/utils.js
+ *
+ * @param {Array} routes - Route defenitions
+ * @param {string} uri - Url to match
+ */
 export function matchPath(routes, uri) {
   let match;
   const [uriPathname] = uri.split("?");

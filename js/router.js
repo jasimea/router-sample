@@ -1,5 +1,5 @@
 "use strict";
-import { closest, matchPath } from "./util.js";
+import { match } from "./util.js";
 
 export default class Router extends HTMLElement {
   constructor() {
@@ -20,12 +20,13 @@ export default class Router extends HTMLElement {
       .map(r => ({
         path: r.getAttribute("path"),
         title: r.getAttribute("title"),
-        component: r.getAttribute("component")
+        component: r.getAttribute("component"),
+        resourceUrl: r.getAttribute("resourceUrl")
       }));
   }
 
   connectedCallback() {
-    this._updateLinks();
+    this.updateLinks();
     this.navigate(window.location.pathname);
 
     window.addEventListener("popstate", this._handlePopstate);
@@ -36,51 +37,59 @@ export default class Router extends HTMLElement {
   }
 
   _handlePopstate = () => {
-    this.match(window.location.pathname);
+    this.navigate(window.location.pathname);
   };
 
-  _updateLinks() {
+  updateLinks() {
     this.querySelectorAll("a[route]").forEach(link => {
-      if (closest(link, "wc-router") === this) {
-        const target = link.getAttribute("route");
-        link.setAttribute("href", target);
-        link.onclick = e => {
-          e.preventDefault();
-          this.navigate(target);
-        };
-      }
+      const target = link.getAttribute("route");
+      link.setAttribute("href", target);
+      link.onclick = e => {
+        e.preventDefault();
+        this.navigate(target);
+      };
     });
   }
 
   navigate(url) {
-    window.history.pushState(null, null, url);
-    this.match(url);
-  }
-
-  match(url) {
-    const matchedRoute = matchPath(this.routes, url);
+    const matchedRoute = match(this.routes, url);
     if (matchedRoute !== null) {
       this.activeRoute = matchedRoute;
-      this._update();
+      window.history.pushState(null, null, url);
+      this.update();
     }
   }
 
-  _update() {
-    const { component, title, params = {} } = this.activeRoute;
+  update() {
+    const {
+      component,
+      title,
+      params = {},
+      resourceUrl = null
+    } = this.activeRoute;
+
     if (component) {
       while (this.outlet.firstChild) {
         this.outlet.removeChild(this.outlet.firstChild);
       }
 
-      const view = document.createElement(component);
-      document.title = title || document.title;
+      const updateView = () => {
+        const view = document.createElement(component);
+        document.title = title || document.title;
 
-      for (let key in params) {
-        if (key !== "*") view.setAttribute(key, params[key]);
+        for (let key in params) {
+          if (key !== "*") view.setAttribute(key, params[key]);
+        }
+
+        this.outlet.appendChild(view);
+        this.updateLinks();
+      };
+      console.log(resourceUrl);
+      if (resourceUrl !== null) {
+        import(resourceUrl).then(updateView);
+      } else {
+        updateView();
       }
-
-      this.outlet.appendChild(view);
-      this._updateLinks();
     }
   }
 

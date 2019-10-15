@@ -1,24 +1,10 @@
-let ep = Element.prototype;
-ep.matches =
-  ep.matches ||
-  ep.webkitMatchesSelector ||
-  ep.msMatchesSelector ||
-  ep.mozMatchesSelector;
-
-export function closest(elem, selector) {
-  while (elem !== document.body) {
-    elem = elem.parentElement;
-    if (elem.matches(selector)) return elem;
-  }
-}
-
 let paramRe = /^:(.+)/;
 
 function segmentize(uri) {
   return uri.replace(/(^\/+|\/+$)/g, "").split("/");
 }
 
-export function matchPath(routes, uri) {
+export function match(routes, uri) {
   let match;
   const [uriPathname] = uri.split("?");
   const uriSegments = segmentize(uriPathname);
@@ -33,9 +19,9 @@ export function matchPath(routes, uri) {
     for (; index < max; index++) {
       const uriSegment = uriSegments[index];
       const routeSegment = routeSegments[index];
-      const isSplat = routeSegment === "*";
+      const fallback = routeSegment === "*";
 
-      if (isSplat) {
+      if (fallback) {
         params["*"] = uriSegments
           .slice(index)
           .map(decodeURIComponent)
